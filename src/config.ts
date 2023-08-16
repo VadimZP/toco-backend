@@ -12,4 +12,4 @@ const dbConfig = {
 
 const serverPort = process.env.SERVER_PORT;
 
-module.exports = { dbConfig, serverPort };
+export { dbConfig, serverPort };

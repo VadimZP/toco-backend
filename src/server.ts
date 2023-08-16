@@ -1,11 +1,10 @@
-const { app, db } = require("./app");
-const { serverPort } = require("./config");
+import { app } from "./app";
+import { serverPort } from "./config";
+import usersRouter from "./routes/users";
+import transactionsRouter from "./routes/transactions";
 
-const users = require("./routes/users");
-const transactions = require("./routes/transactions");
-
-app.use("/users", users);
-app.use("/transactions", transactions);
+app.use("/users", usersRouter);
+app.use("/transactions", transactionsRouter);
 
 // function errorHandler(err, req, res, next) {
 //   res.status(500).json({ message: "Server error" });
