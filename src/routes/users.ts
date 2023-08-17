@@ -2,7 +2,7 @@ import express from 'express';
 import z from 'zod';
 
 import { db } from '../app';
-import { validate } from '../middlewares';
+import { restrict, validate } from '../middlewares';
 
 const SignInSchema = z.object({
     body: z.object({
@@ -16,7 +16,6 @@ const getUserInfoSchema = z.object({
         userId: z.number()
     })
 })
-
 
 const getUserById = async ({ userId }) => {
     let data;
@@ -38,7 +37,7 @@ const getUserByUsernameAndPass = async ({ username, password }) => {
 
     try {
         data = await db.oneOrNone(
-            "SELECT username, balance FROM users WHERE username = $1 AND password = crypt($2, password)",
+            "SELECT id FROM users WHERE username = $1 AND password = crypt($2, password)",
             [username, password]
         );
     } catch (error) {
@@ -70,15 +69,23 @@ usersRouter.post("/", validate(SignInSchema), async (req, res) => {
     const data = await getUserByUsernameAndPass({ username, password });
 
     if (data !== null) {
-        res.status(403).json({ message: "User already exists" });
-    } else {
-        const data = await createUser(req.body);
+        res.cookie('userId', data.id, {
+            httpOnly: true
+        });
 
-        res.status(201).json(data);
+        res.status(200).json({ message: "You successfully logged in" });
+    } else {
+        const { id, username } = await createUser(req.body);
+
+        res.cookie('userId', data.id, {
+            httpOnly: true
+        });
+
+        res.status(201).json({ id, username });
     }
 });
 
-usersRouter.get("/:userId", async (req, res) => {
+usersRouter.get("/:userId", restrict, async (req, res) => {
     const userId = +req.params.userId;
 
     try {
