@@ -77,7 +77,7 @@ usersRouter.post("/", validate(SignInSchema), async (req, res) => {
     } else {
         const { id, username } = await createUser(req.body);
 
-        res.cookie('userId', data.id, {
+        res.cookie('userId', id, {
             httpOnly: true
         });
 
